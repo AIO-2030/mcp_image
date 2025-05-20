@@ -1,0 +1,9 @@
+python-dotenv>=1.0.1,<2.0.0
+requests>=2.26.0,<3.0.0
+pydantic>=2.10.6,<3.0.0
+mcp==1.6.0
+PyInstaller>=4.5.1,<5.0.0
+pytest>=6.2.5,<7.0.0
+pillow>=9.2.0,<11.0.0
+modelcontextprotocol>=0.1.0,<1.0.0
+python-multipart>=0.0.5,<1.0.0 
