@@ -138,7 +138,7 @@ class ImageService:
     def help(self) -> Dict[str, Any]:
         return {
             "jsonrpc": "2.0",
-            "result": {
+            "output": {
                 "type": "image_service",
                 "description": """This MCP module is built on top of the `Kwai-Kolors/Kolors` image processing and enhancement library. It enables AI agents to programmatically apply rich color manipulations, visual filters, and artistic transformations to images. The module supports functions such as color grading, tone adjustment, hue shifts, and preset-based visual styles. It is particularly useful for generative image post-processing, photo style transfer, and aesthetic enhancement pipelines in both static and dynamic workflows.
 
