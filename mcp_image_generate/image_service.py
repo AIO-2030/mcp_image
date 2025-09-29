@@ -1,6 +1,7 @@
 import os
 import time
 import base64
+import json
 from typing import Dict, Any, Optional
 import requests
 from PIL import Image
@@ -69,6 +70,44 @@ class ImageService:
                             }
                         },
                         "required": ["prompt"]
+                    }
+                },
+                {
+                    "name": "pixel_image_generate",
+                    "description": "Generate pixel emoji style image from user input using LLM prompt generation",
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {
+                            "user_input": {
+                                "type": "string",
+                                "description": "User's natural language input (can be in any language)"
+                            },
+                            "negative_prompt": {
+                                "type": "string",
+                                "description": "Negative prompt",
+                                "default": ""
+                            },
+                            "num_inference_steps": {
+                                "type": "integer",
+                                "description": "Number of inference steps",
+                                "default": 20
+                            },
+                            "guidance_scale": {
+                                "type": "number",
+                                "description": "Guidance scale",
+                                "default": 7.5
+                            },
+                            "seed": {
+                                "type": "integer",
+                                "description": "Random seed"
+                            },
+                            "image_size": {
+                                "type": "string",
+                                "description": "Image size (e.g., '1024x1024')",
+                                "default": "1024x1024"
+                            }
+                        },
+                        "required": ["user_input"]
                     }
                 }
             ]
@@ -206,6 +245,44 @@ Recommended use cases:
                             },
                             "required": ["prompt"]
                         }
+                    },
+                    {
+                        "name": "pixel_image_generate",
+                        "description": "Generate pixel emoji style image from user input using LLM prompt generation",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "user_input": {
+                                    "type": "string",
+                                    "description": "User's natural language input (can be in any language)"
+                                },
+                                "negative_prompt": {
+                                    "type": "string",
+                                    "description": "Negative prompt",
+                                    "default": ""
+                                },
+                                "num_inference_steps": {
+                                    "type": "integer",
+                                    "description": "Number of inference steps",
+                                    "default": 20
+                                },
+                                "guidance_scale": {
+                                    "type": "number",
+                                    "description": "Guidance scale",
+                                    "default": 7.5
+                                },
+                                "seed": {
+                                    "type": "integer",
+                                    "description": "Random seed"
+                                },
+                                "image_size": {
+                                    "type": "string",
+                                    "description": "Image size (e.g., '1024x1024')",
+                                    "default": "1024x1024"
+                                }
+                            },
+                            "required": ["user_input"]
+                        }
                     }
                 ]
             },
@@ -221,10 +298,10 @@ Recommended use cases:
         seed: Optional[int] = None,
         image_size: str = "1024x1024"
     ) -> Dict[str, Any]:
-        # 解析图像尺寸
+        # Parse image dimensions
         width, height = map(int, image_size.split('x'))
 
-        # 构建请求数据
+        # Build request data
         data = {
             "model": "Kwai-Kolors/Kolors",
             "prompt": prompt,
@@ -238,20 +315,20 @@ Recommended use cases:
         if seed is not None:
             data["seed"] = seed
 
-        # 发送请求到硅基 API
+        # Send request to Silicon Flow API
         response = requests.post(self.api_url, headers=self.headers, json=data)
         response.raise_for_status()
         result = response.json()
 
-        # 获取图像 URL
+        # Get image URL
         image_url = result["images"][0]["url"]
         
-        # 下载图像并转换为 base64
+        # Download image and convert to base64
         image_response = requests.get(image_url)
         image_response.raise_for_status()
         image_base64 = base64.b64encode(image_response.content).decode('utf-8')
 
-        # 构建 AIO 协议格式的响应
+        # Build AIO protocol format response
         return {
             "message": "Image generated successfully",
             "image_base64": image_base64,
@@ -276,4 +353,127 @@ Recommended use cases:
             with open(image_path, "rb") as f:
                 return base64.b64encode(f.read()).decode()
         except Exception as e:
-            return {"error": str(e)} 
+            return {"error": str(e)}
+
+    def generate_pixel_emoji_prompt(self, user_input: str) -> Dict[str, Any]:
+        """Generate pixel emoji style image prompts using LLM"""
+        llm_url = "https://api.siliconflow.cn/v1/chat/completions"
+        
+        # Import prompt template from pixel_emjo.py
+        from pixel_emjo import generate_pixel_emoji_prompt
+        prompt_template = generate_pixel_emoji_prompt(user_input)
+        
+        # Build LLM request
+        llm_data = {
+            "model": "deepseek-ai/DeepSeek-R1-Distill-Qwen-7B",
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt_template
+                }
+            ],
+            "temperature": 0.7,
+            "max_tokens": 1000
+        }
+        
+        try:
+            # Send request to LLM API
+            llm_response = requests.post(llm_url, headers=self.headers, json=llm_data)
+            llm_response.raise_for_status()
+            llm_result = llm_response.json()
+            
+            # Extract generated prompt
+            llm_content = llm_result["choices"][0]["message"]["content"]
+            
+            # Try to parse JSON response
+            try:
+                parsed_result = json.loads(llm_content)
+                return {
+                    "success": True,
+                    "user_input": user_input,
+                    "llm_response": parsed_result,
+                    "image_prompt": parsed_result.get("image_prompt", ""),
+                    "intent_summary": parsed_result.get("intent_summary", ""),
+                    "style": parsed_result.get("style", "pixel art, emoji-style"),
+                    "notes": parsed_result.get("notes", "")
+                }
+            except json.JSONDecodeError:
+                # If JSON parsing fails, use raw content as image prompt
+                return {
+                    "success": True,
+                    "user_input": user_input,
+                    "llm_response": llm_content,
+                    "image_prompt": llm_content,
+                    "intent_summary": f"Generated prompt for: {user_input}",
+                    "style": "pixel art, emoji-style",
+                    "notes": "LLM generated prompt"
+                }
+                
+        except Exception as e:
+            return {
+                "success": False,
+                "error": str(e),
+                "user_input": user_input
+            }
+
+    def pixel_image_generate(
+        self,
+        user_input: str,
+        negative_prompt: str = "",
+        num_inference_steps: int = 20,
+        guidance_scale: float = 7.5,
+        seed: Optional[int] = None,
+        image_size: str = "1024x1024"
+    ) -> Dict[str, Any]:
+        """Generate pixel emoji style images"""
+        # Step 1: Generate prompt using LLM
+        prompt_result = self.generate_pixel_emoji_prompt(user_input)
+        
+        if not prompt_result["success"]:
+            return {
+                "success": False,
+                "error": f"Failed to generate prompt: {prompt_result.get('error', 'Unknown error')}",
+                "user_input": user_input
+            }
+        
+        # Step 2: Generate image using the generated prompt
+        image_prompt = prompt_result["image_prompt"]
+        
+        try:
+            # Call existing generate_image method
+            image_result = self.generate_image(
+                prompt=image_prompt,
+                negative_prompt=negative_prompt,
+                num_inference_steps=num_inference_steps,
+                guidance_scale=guidance_scale,
+                seed=seed,
+                image_size=image_size
+            )
+            
+            # Merge results
+            return {
+                "success": True,
+                "message": "Pixel emoji image generated successfully",
+                "user_input": user_input,
+                "generated_prompt": image_prompt,
+                "prompt_metadata": {
+                    "intent_summary": prompt_result.get("intent_summary", ""),
+                    "style": prompt_result.get("style", ""),
+                    "notes": prompt_result.get("notes", "")
+                },
+                "image_base64": image_result["image_base64"],
+                "metadata": {
+                    **image_result["metadata"],
+                    "generation_type": "pixel_emoji",
+                    "original_user_input": user_input
+                }
+            }
+            
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"Failed to generate image: {str(e)}",
+                "user_input": user_input,
+                "generated_prompt": image_prompt,
+                "prompt_metadata": prompt_result
+            } 

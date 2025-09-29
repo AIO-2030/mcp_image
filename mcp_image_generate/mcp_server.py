@@ -40,6 +40,12 @@ async def image_resource(image_path: str) -> str:
     """Provide image file content as a resource"""
     return service.image_resource(image_path)
 
+@Tool.from_function
+async def pixel_image_generate(user_input: str, negative_prompt: str = "", num_inference_steps: int = 20,
+                             guidance_scale: float = 7.5, seed: int = None, image_size: str = "1024x1024") -> dict:
+    """Generate pixel emoji style image from user input using LLM prompt generation"""
+    return service.pixel_image_generate(user_input, negative_prompt, num_inference_steps, guidance_scale, seed, image_size)
+
 async def main():
     async with stdio_server() as (read_stream, write_stream):
         await mcp.run(read_stream, write_stream, {})

@@ -5,6 +5,7 @@ from image_service import ImageService
 def main():
     service = ImageService(
         api_url="https://api.siliconflow.cn/v1/images/generations",  # Silicon Flow API URL
+    
         api_key="sk-sizdciquzgledafoqeguebohudunufoztppywmclondftwij"  # Replace with actual API key
     )
     
@@ -35,6 +36,23 @@ def main():
                 "jsonrpc": "2.0",
                 "output": {
                     "type": "image",
+                    **result
+                },
+                "id": request.get("id")
+            }
+        elif method == "pixel_image_generate":
+            result = service.pixel_image_generate(
+                user_input=params.get("user_input"),
+                negative_prompt=params.get("negative_prompt", ""),
+                num_inference_steps=params.get("num_inference_steps", 20),
+                guidance_scale=params.get("guidance_scale", 7.5),
+                seed=params.get("seed"),
+                image_size=params.get("image_size", "1024x1024")
+            )
+            response = {
+                "jsonrpc": "2.0",
+                "output": {
+                    "type": "pixel_emoji_image",
                     **result
                 },
                 "id": request.get("id")
