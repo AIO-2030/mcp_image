@@ -355,13 +355,13 @@ Recommended use cases:
         except Exception as e:
             return {"error": str(e)}
 
-    def generate_pixel_emoji_prompt(self, user_input: str) -> Dict[str, Any]:
+    def generate_pixel_emoji_prompt(self, user_input: str, image_size: str = "1024x1024") -> Dict[str, Any]:
         """Generate pixel emoji style image prompts using LLM"""
         llm_url = "https://api.siliconflow.cn/v1/chat/completions"
         
         # Import prompt template from pixel_emjo.py
         from pixel_emjo import generate_pixel_emoji_prompt
-        prompt_template = generate_pixel_emoji_prompt(user_input)
+        prompt_template = generate_pixel_emoji_prompt(user_input, image_size)
         
         # Build LLM request
         llm_data = {
@@ -427,7 +427,7 @@ Recommended use cases:
     ) -> Dict[str, Any]:
         """Generate pixel emoji style images"""
         # Step 1: Generate prompt using LLM
-        prompt_result = self.generate_pixel_emoji_prompt(user_input)
+        prompt_result = self.generate_pixel_emoji_prompt(user_input, image_size)
         
         if not prompt_result["success"]:
             return {
@@ -437,7 +437,7 @@ Recommended use cases:
             }
         
         # Step 2: Generate image using the generated prompt
-        image_prompt = prompt_result["image_prompt"]
+        image_prompt = prompt_result["style"] +","+ prompt_result["image_prompt"]
         
         try:
             # Call existing generate_image method
