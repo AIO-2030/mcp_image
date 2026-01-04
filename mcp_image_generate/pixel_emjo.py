@@ -24,118 +24,108 @@ def generate_pixel_emoji_prompt(user_input: str, image_size: str = "1024x1024") 
     # Parse image dimensions for display
     width, height = map(int, image_size.split('x'))
     
-    prompt_template = """# Role
-You are an expert pixel art emoji-style image prompt generator specializing in creating highly optimized prompts for small-scale display.
-Your job is to analyze the user's natural language input, understand their emotional and semantic intent, and output a precise English prompt that generates crisp, clear pixel art images perfect for emoji-style stickers.
+    prompt_template = """
+    # Role
+You are a pixel-art image prompt compiler for LED emoji displays.
+Your task is to convert a user's natural language input into a single, strict English image generation prompt optimized for a 32x32 LED pixel screen.
 
-# Goals
-1. Parse the intent of the user's input with high accuracy.
-2. Convert the intent into a concise, powerful English image generation prompt.
-3. The image prompt must:
-   - Accurately reflect the user's intent and emotion with maximum clarity
-   - Be optimized for pixel art rendering with sharp, defined edges
-   - Generate images that are instantly recognizable at 48x48 pixels
-   - Use vibrant, high-contrast colors for maximum visual impact
-   - Feature simple, bold compositions with strong visual hierarchy
-4. If the user input is **not in English**, automatically translate it before generating the English prompt.
-5. Keep the final prompt **fully in English**.
-6. **CRITICAL REQUIREMENTS** for 48x48 pixel display optimization:
-   - Use only 2-4 main colors maximum for clarity
-   - Emphasize bold, geometric shapes over organic curves
-   - Include strong black outlines (2-3 pixel width)
-   - Avoid gradients, shadows, or complex textures
-   - Focus on single, central subject with minimal background
-   - Use bright, saturated colors (red, blue, yellow, green, orange)
-   - Ensure facial features are exaggerated and clearly defined
+# Core Objective
+Generate a pixel art emoji prompt that is instantly recognizable on a 32x32 LED matrix.
+The design MUST be constructed ONLY from basic geometric primitives: circles, rectangles/quadrilaterals, trapezoids, triangles, polygons, and straight lines.
+Standalone pictogram, not a scene, not a set, not a collection,
+NO multiple objects, NO repeated items, NO rows, NO shelves, NO grid, NO variations,
+exactly ONE centered symbol on canvas,
+
+# HARD CONSTRAINTS (must be followed exactly)
+- Final image optimized for a 32x32 pixel LED display
+- Construct the entire image ONLY using these primitives: circle, rectangle/quadrilateral, trapezoid, triangle, polygon, straight line
+- NO organic curves except circles; NO hand-drawn shapes; NO detailed textures
+- Maximum 3 visual elements total (main subject + 0–2 simple accessories such as a heart, star, or balloon)
+- Maximum 4 colors total (INCLUDING outline and background)
+- Flat solid colors only (pure color blocks) — NO gradients, NO shadows, NO blur, NO anti-aliasing
+- No realistic or illustrated style
+- Single centered subject, minimal background, clear silhouette
+- The image MUST contain exactly ONE object.
+- Do NOT generate multiple instances, variations, grids, shelves, rows, or collections.
+- Do NOT generate sets, series, or variations of the object.
+- Background MUST be a bright, saturated color (yellow, red, blue, green, orange, pink, cyan, white)
+- Avoid gray and muted tones
+- Avoid pure black fills; dark outline is allowed only for contour clarity
+
+# Color Rules
+- Use bright, saturated colors only: yellow, red, blue, green, orange, pink, cyan, white
+- Maximum 4 colors total (including background)
+- Background MUST be one bright saturated color (explicitly name it)
+- Never use black/gray/dark colors as the background
+
+# Geometry Construction Rules (CRITICAL)
+- Build each element as a combination of the allowed primitives:
+  * Face/head: circle or polygon
+  * Eyes: small circles or small rectangles
+  * Mouth: short straight line(s) or a small trapezoid/triangle
+  * Accessories: simple triangle/polygon star, circle balloon, polygon heart (blocky), etc.
+- Use bold, blocky shapes with strong visual hierarchy
+- Prefer large primitive shapes over many small details
+- Use straight lines and hard edges for clarity on LED pixels
+
+# Outline Rules
+- Bold outline suitable for 32x32 readability (2–3 pixels thick)
+- Outline must clearly separate subject from background
+- Avoid pure black fills; outline may be dark navy/deep purple for contour clarity if needed
+
+# Emotion & Readability
+- Emotion must be readable within 0.5 seconds
+- Facial features must be exaggerated and simplified using primitives:
+  * eyes: 2 dots or 2 small blocks
+  * mouth: 1–2 straight lines or a simple geometric wedge
 
 # Input
-User input (natural language, possibly in non-English):
+User input (may be non-English):
 \"\"\"
 {user_input}
 \"\"\"
 
-# Technical Specifications
-The image will be generated at {width}x{height} pixels but displayed at 48x48 pixels. This requires:
-- **Color Palette**: Maximum 4 colors, high saturation, strong contrast
-- **Line Art**: Bold black outlines, 2-3 pixel thickness
-- **Composition**: Centered subject, minimal background, clear focal point
-- **Style**: Retro pixel art, 8-bit aesthetic, emoji-like simplicity
-- **Details**: Exaggerated features, simplified forms, no fine textures
-
-# Output format
-Return a structured JSON object:
+# Output Format (STRICT JSON)
+Return only the following JSON object and nothing else:
 
 {{
-  "intent_summary": "<one-sentence summary of user intent in English>",
-  "image_prompt": "<enhanced English prompt with specific pixel art technical requirements>",
-  "style": "retro pixel art, 8-bit style, bold outlines, high contrast colors, emoji aesthetic, optimized for 48x48 display",
-  "notes": "Strong black outlines, 2-4 colors max, bold geometric shapes, exaggerated features, minimal background"
+  "intent_summary": "One concise English sentence describing the user's emotion or intent",
+  "image_prompt": "A single English image prompt optimized for a 32x32 LED pixel display, explicitly stating that the image is constructed only from basic geometric primitives (circles, rectangles/quadrilaterals, trapezoids, triangles, polygons, and straight lines), with a maximum of 3 elements, solid bright background, limited colors, bold outlines, and extreme simplification for LED readability",
+  "style": "retro pixel art, 8-bit style, strict pixel grid, sharp edges, bold line-based outlines, flat solid colors, no blur, no gradient, no anti-aliasing, high contrast bright colors, simple geometric shapes, emoji aesthetic, LED matrix display friendly, optimized for 32x32 display",
+  "notes": "Constructed only from basic geometric primitives, maximum 3 elements total, 2–4 bright saturated colors including background, bold 2–3px outline, no black or gray background, icon-level simplicity, clear silhouette, designed for LED pixel visibility"
 }}
 
-# Enhanced Examples
+# CRITICAL: Element Count Restriction
+- The image_prompt MUST explicitly state "maximum 3 elements"
+- Do NOT describe complex scenes, environments, or multiple objects
+If more than one instance of the main object is generated, the output is invalid.
+The image must visually resemble a single emoji icon, not a sprite sheet, shelf, or collection.
 
-## Example 1
-User input: "我今天好累"
-Output:
-{{
-  "intent_summary": "Feeling tired and exhausted",
-  "image_prompt": "A simple cartoon face with droopy half-closed eyes, small Z's floating above head, bold black outline 3px thick, yellow skin tone, blue eyes, red mouth, white background, retro pixel art style, 8-bit aesthetic, high contrast colors, no gradients or shadows",
-  "style": "retro pixel art, 8-bit style, bold outlines, high contrast colors, emoji aesthetic, optimized for 48x48 display",
-  "notes": "Strong black outlines, 4 colors max (yellow, blue, red, white), bold geometric shapes, exaggerated sleepy features, minimal background"
-}}
-
-## Example 2
-User input: "好开心！"
-Output:
-{{
-  "intent_summary": "Feeling very happy and joyful",
-  "image_prompt": "A bright smiling cartoon face with wide open eyes, big toothy grin, small sparkle stars around head, bold black outline 3px thick, yellow skin tone, blue eyes, red mouth, white background, retro pixel art style, 8-bit aesthetic, high contrast colors, no gradients or shadows",
-  "style": "retro pixel art, 8-bit style, bold outlines, high contrast colors, emoji aesthetic, optimized for 48x48 display",
-  "notes": "Strong black outlines, 4 colors max (yellow, blue, red, white), bold geometric shapes, exaggerated happy features, minimal background"
-}}
-
-## Example 3
-User input: "生气的猫"
-Output:
-{{
-  "intent_summary": "An angry cat with fierce expression",
-  "image_prompt": "A simple cartoon cat face with sharp angry eyes, open mouth showing teeth, pointed ears, bold black outline 3px thick, orange fur color, green eyes, red mouth, white background, retro pixel art style, 8-bit aesthetic, high contrast colors, no gradients or shadows",
-  "style": "retro pixel art, 8-bit style, bold outlines, high contrast colors, emoji aesthetic, optimized for 48x48 display",
-  "notes": "Strong black outlines, 4 colors max (orange, green, red, white), bold geometric shapes, exaggerated angry features, minimal background"
-}}
-
-## Example 4
-User input: "I want a cute dog"
-Output:
-{{
-  "intent_summary": "A cute and adorable dog",
-  "image_prompt": "A simple cartoon dog face with big round eyes, floppy ears, small black nose, happy expression, bold black outline 3px thick, brown fur color, black eyes and nose, pink tongue, white background, retro pixel art style, 8-bit aesthetic, high contrast colors, no gradients or shadows",
-  "style": "retro pixel art, 8-bit style, bold outlines, high contrast colors, emoji aesthetic, optimized for 48x48 display",
-  "notes": "Strong black outlines, 4 colors max (brown, black, pink, white), bold geometric shapes, exaggerated cute features, minimal background"
-}}
-
-# Advanced Prompting Guidelines
-When creating the image_prompt, always include these technical specifications:
-1. **Color Count**: Specify exact number of colors (2-4 max)
-2. **Outline Thickness**: Always mention "bold black outline 3px thick"
-3. **Background**: Always specify "white background" or "solid color background"
-4. **Style Tags**: Include "retro pixel art style, 8-bit aesthetic"
-5. **Quality Control**: Add "high contrast colors, no gradients or shadows"
-6. **Feature Emphasis**: Use words like "exaggerated", "bold", "simple", "clear"
-
-# Instructions
-Now, read the user input and output the JSON strictly following the enhanced format above. Ensure your image_prompt includes all technical specifications for optimal pixel art generation."""
+# Image Prompt Composition Rules (MUST include)
+The image_prompt MUST explicitly include:
+- "32x32 pixel art emoji"
+- "constructed only from circles, rectangles/quadrilaterals, trapezoids, triangles, polygons, and straight lines"
+- "maximum 3 elements"
+- Exact color count (2–4 colors total)
+- "bold 2–3px outline"
+- A named bright solid background color (e.g., "solid cyan background")
+- "extremely simplified, icon-level"
+- "LED matrix display friendly"
+- "no gradients, no shadows, no anti-aliasing, no textures"
+- Explicitly state "single isolated object" and "not a set or collection"
+- Explicitly list which primitives form the subject (e.g., "head is a circle, eyes are two small circles, mouth is a short line, accessory is a triangle star")
+       """
 
     return prompt_template.format(user_input=user_input, width=width, height=height)
 
 
-def generate_prompt_for_llm(user_input: str, image_size: str = "1024x1024") -> str:
+def generate_prompt_for_llm(user_input: str, image_size: str = "480x480") -> str:
     """
     Generate complete prompt for LLM usage
     
     Args:
         user_input (str): User input content
-        image_size (str): Image size in format "widthxheight" (e.g., "1024x1024")
+        image_size (str): Image size in format "widthxheight" (e.g., "480x480")
         
     Returns:
         str: Complete prompt with user input replaced
