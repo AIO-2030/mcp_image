@@ -32,31 +32,35 @@ Your task is to convert a user's natural language input into a single, strict En
 # Core Objective
 Generate a pixel art emoji prompt that is instantly recognizable on a 32x32 LED matrix.
 The design MUST be constructed ONLY from basic geometric primitives: circles, rectangles/quadrilaterals, trapezoids, triangles, polygons, and straight lines.
-Standalone pictogram, not a scene, not a set, not a collection,
-NO multiple objects, NO repeated items, NO rows, NO shelves, NO grid, NO variations,
-exactly ONE centered symbol on canvas,
+CRITICAL: The image MUST contain EXACTLY ONE object, centered on the canvas. Standalone pictogram, not a scene, set, collection, grid, or multiple panels.
+ABSOLUTELY FORBIDDEN: multiple objects, repeated items, rows, columns, shelves, grid layouts (2x2, 3x3, any grid), multiple panels, variations, or multiple instances.
 
 # HARD CONSTRAINTS (must be followed exactly)
 - Final image optimized for a 32x32 pixel LED display
 - Construct the entire image ONLY using these primitives: circle, rectangle/quadrilateral, trapezoid, triangle, polygon, straight line
 - NO organic curves except circles; NO hand-drawn shapes; NO detailed textures
 - Maximum 3 visual elements total (main subject + 0–2 simple accessories such as a heart, star, or balloon)
-- Maximum 4 colors total (INCLUDING outline and background)
+- Maximum 4 colors total
 - Flat solid colors only (pure color blocks) — NO gradients, NO shadows, NO blur, NO anti-aliasing
 - No realistic or illustrated style
 - Single centered subject, minimal background, clear silhouette
-- The image MUST contain exactly ONE object.
-- Do NOT generate multiple instances, variations, grids, shelves, rows, or collections.
-- Do NOT generate sets, series, or variations of the object.
-- Background MUST be a bright, saturated color (yellow, red, blue, green, orange, pink, cyan, white)
-- Avoid gray and muted tones
-- Avoid pure black fills; dark outline is allowed only for contour clarity
+- Clean, minimal design: NO decorative lines, internal stripes, patterns, or unnecessary details. Only essential features for recognition.
+
+# CRITICAL SINGLE OBJECT RULE (HIGHEST PRIORITY)
+- The image MUST contain EXACTLY ONE object, centered and isolated. ABSOLUTELY FORBIDDEN: multiple objects, instances, grids, panels, rows, columns, or any multi-object layout.
+- If input mentions "a cat" or "yellow cat", generate ONE cat only. Never interpret plural forms as permission for multiple objects.
+- The image must be a single emoji icon, not a sprite sheet, grid, or multiple panels.
+
+# Background Rules (CRITICAL: Background is separate from outline)
+- Background: MUST be white or light color (white #FFFFFF, light cyan, light yellow, light pink, etc.) filling the entire frame, flat and uniform
+- ABSOLUTELY FORBIDDEN: black, dark gray, or any dark colors as background. Background must be bright and light.
+- No gradient, transparent background, or vignette. The background is a solid bright/light color field filling the entire canvas behind the subject
 
 # Color Rules
-- Use bright, saturated colors only: yellow, red, blue, green, orange, pink, cyan, white
+- Use bright, saturated, vibrant colors only: yellow, red, blue, green, orange, pink, cyan, white
 - Maximum 4 colors total (including background)
-- Background MUST be one bright saturated color (explicitly name it)
-- Never use black/gray/dark colors as the background
+- The outline should use bright/vibrant colors that create strong visual contrast with the subject
+- Rich color palette with high saturation for maximum visual impact
 
 # Geometry Construction Rules (CRITICAL)
 - Build each element as a combination of the allowed primitives:
@@ -68,16 +72,27 @@ exactly ONE centered symbol on canvas,
 - Prefer large primitive shapes over many small details
 - Use straight lines and hard edges for clarity on LED pixels
 
-# Outline Rules
-- Bold outline suitable for 32x32 readability (2–3 pixels thick)
-- Outline must clearly separate subject from background
-- Avoid pure black fills; outline may be dark navy/deep purple for contour clarity if needed
+# Simplicity & Clean Design Rules (CRITICAL: Avoid unnecessary lines)
+- Keep the design extremely simple and clean. Focus on the main subject only.
+- ABSOLUTELY FORBIDDEN: decorative lines, internal stripes, patterns, horizontal/vertical lines across the face, unnecessary internal details, or any lines that don't serve a clear purpose (eyes, mouth, outline).
+- Only include essential features: basic shape, eyes, mouth (if needed), and outline. NO decorative elements.
+- The subject should be clean and minimal - avoid any internal decorative lines, stripes, or patterns.
+- If a feature can be removed without losing recognition, remove it. Less is more.
+
+# Outline Rules (CRITICAL: Outline is part of the subject, NOT the background)
+- Bold outline (2–3 pixels thick) applied only to the subject's edges for 32x32 readability
+- Outline MUST be bright/vibrant colors (white, bright yellow, bright cyan, bright pink, bright orange, bright green, etc.) that create strong contrast with the subject
+- The outline should use rich, saturated colors that stand out against both the subject and the light background
+- The outline belongs to the subject itself, defines its boundary, and is visually part of the subject (not the background)
+- NEVER use dark colors (black, dark navy, dark gray) for the outline. Use bright, vibrant colors only.
 
 # Emotion & Readability
 - Emotion must be readable within 0.5 seconds
 - Facial features must be exaggerated and simplified using primitives:
-  * eyes: 2 dots or 2 small blocks
-  * mouth: 1–2 straight lines or a simple geometric wedge
+  * eyes: 2 dots or 2 small blocks (simple, no internal details)
+  * mouth: 1–2 straight lines or a simple geometric wedge (minimal)
+- NO decorative lines, stripes, or patterns inside the face or body
+- Keep facial features minimal - only what's necessary for recognition
 
 # Input
 User input (may be non-English):
@@ -85,35 +100,36 @@ User input (may be non-English):
 {user_input}
 \"\"\"
 
+# CRITICAL INPUT INTERPRETATION RULE
+- Regardless of input, generate a prompt for EXACTLY ONE object. If input is "A yellow cat" or "cat", generate ONE cat only.
+- If input uses plural forms, interpret as ONE representative object. NEVER generate grids, multiple panels, rows, columns, or layouts showing more than one object.
+
 # Output Format (STRICT JSON)
 Return only the following JSON object and nothing else:
 
 {{
   "intent_summary": "One concise English sentence describing the user's emotion or intent",
-  "image_prompt": "A single English image prompt optimized for a 32x32 LED pixel display, explicitly stating that the image is constructed only from basic geometric primitives (circles, rectangles/quadrilaterals, trapezoids, triangles, polygons, and straight lines), with a maximum of 3 elements, solid bright background, limited colors, bold outlines, and extreme simplification for LED readability",
-  "style": "retro pixel art, 8-bit style, strict pixel grid, sharp edges, bold line-based outlines, flat solid colors, no blur, no gradient, no anti-aliasing, high contrast bright colors, simple geometric shapes, emoji aesthetic, LED matrix display friendly, optimized for 32x32 display",
-  "notes": "Constructed only from basic geometric primitives, maximum 3 elements total, 2–4 bright saturated colors including background, bold 2–3px outline, no black or gray background, icon-level simplicity, clear silhouette, designed for LED pixel visibility"
+  "image_prompt": "A single English image prompt optimized for a 32x32 LED pixel display. MUST explicitly state: 'exactly ONE object', 'single isolated object', 'not a grid', 'not multiple objects', 'not a collection'. State that the image is constructed only from basic geometric primitives (circles, rectangles/quadrilaterals, trapezoids, triangles, polygons, and straight lines), with maximum 3 elements, limited colors, and extreme simplification for LED readability. The design must be clean and minimal - NO decorative lines, internal stripes, patterns, or unnecessary details. Only include essential features (basic shape, eyes, mouth if needed, outline). Separately specify: (1) solid white or light color background (NOT black or dark) filling entire canvas, (2) bold bright/vibrant colored outlines (white, bright yellow, bright cyan, bright pink, etc.) belonging to the subject that create strong contrast with both the subject and background. Explicitly forbid grids, multiple panels, rows, columns, decorative lines, internal patterns, or any multi-object layout.",
+  "style": "retro pixel art, 8-bit style, strict pixel grid, sharp edges, bold line-based outlines, flat solid colors, no blur, no gradient, no anti-aliasing, clear silhouette, bright colors, strong subject-background separation, simple geometric shapes, clean minimal design, no decorative lines or patterns, emoji aesthetic, LED matrix display friendly, optimized for 32x32 display",
+  "notes": "EXACTLY ONE object only, no grids, multiple objects, or panels. Constructed from basic geometric primitives, maximum 3 elements within single object, icon-level simplicity, clear silhouette, LED pixel visibility. Clean and minimal design - NO decorative lines, internal stripes, patterns, or unnecessary details. Only essential features (shape, eyes, mouth if needed, outline). Background: solid white or light color (NOT black or dark) filling entire canvas. Outline: bold 2–3px bright/vibrant colored stroke (white, bright yellow, bright cyan, bright pink, etc.) belonging to subject (not background), creating strong contrast with both subject and background, applied only to subject edges"
 }}
-
-# CRITICAL: Element Count Restriction
-- The image_prompt MUST explicitly state "maximum 3 elements"
-- Do NOT describe complex scenes, environments, or multiple objects
-If more than one instance of the main object is generated, the output is invalid.
-The image must visually resemble a single emoji icon, not a sprite sheet, shelf, or collection.
 
 # Image Prompt Composition Rules (MUST include)
 The image_prompt MUST explicitly include:
 - "32x32 pixel art emoji"
+- "exactly ONE object" (MANDATORY) - "single isolated object", "not a grid", "not multiple objects", "not multiple panels"
 - "constructed only from circles, rectangles/quadrilaterals, trapezoids, triangles, polygons, and straight lines"
-- "maximum 3 elements"
+- "maximum 3 elements" (within single object, not multiple objects)
 - Exact color count (2–4 colors total)
-- "bold 2–3px outline"
-- A named bright solid background color (e.g., "solid cyan background")
-- "extremely simplified, icon-level"
-- "LED matrix display friendly"
-- "no gradients, no shadows, no anti-aliasing, no textures"
-- Explicitly state "single isolated object" and "not a set or collection"
+- "extremely simplified, icon-level", "LED matrix display friendly"
+- "clean and minimal design", "NO decorative lines, internal stripes, patterns, or unnecessary details"
+- "only essential features" (basic shape, eyes, mouth if needed, outline)
+- "no gradients, shadows, anti-aliasing, or textures"
 - Explicitly list which primitives form the subject (e.g., "head is a circle, eyes are two small circles, mouth is a short line, accessory is a triangle star")
+
+# Background & Outline Specification (describe separately)
+- Background: named bright/light solid color (e.g., "solid white background", "light cyan background") filling entire canvas uniformly. MUST be white or light color, NOT black or dark.
+- Outline: "bold 2–3px bright/vibrant colored outline" (white, bright yellow, bright cyan, bright pink, bright orange, etc.) belonging to the subject, creating strong contrast with both the subject and background. Part of subject's visual design, not background. NEVER use dark colors for outline.
        """
 
     return prompt_template.format(user_input=user_input, width=width, height=height)
