@@ -10,8 +10,14 @@ echo "=== 像素表情符号图片生成测试 ==="
 echo "当前目录: $(pwd)"
 echo
 
-# 设置测试参数
-API_KEY="sk-sizdciquzgledafoqeguebohudunufoztppywmclondftwij"
+# 设置测试参数（与 ImageService / stdio_server 一致：优先 DASHSCOPE_API_KEY，否则 API_KEY）
+API_KEY="${DASHSCOPE_API_KEY:-${API_KEY:-}}"
+if [ -z "$API_KEY" ]; then
+    echo "错误: 请设置环境变量 DASHSCOPE_API_KEY 或 API_KEY（阿里云 DashScope API Key）"
+    exit 1
+fi
+export DASHSCOPE_API_KEY="$API_KEY"
+
 SERVER_SCRIPT="stdio_server.py"
 TEST_DIR="test"
 
@@ -28,15 +34,8 @@ if [ ! -f "$SERVER_SCRIPT" ]; then
 fi
 
 # 测试用例数组
-declare -a test_cases=(
-    "我今天好累"
-    "好开心！"
+declare -a test_cases=(  
     "生气的猫"
-    "I want a cute dog"
-    "想要一个可爱的熊猫"
-    "悲伤的表情"
-    "惊讶的脸"
-    "愤怒的机器人"
 )
 
 echo "开始测试 pixel_image_generate 方法..."
@@ -210,6 +209,7 @@ done
 echo "测试完成！"
 echo
 echo "注意事项："
+echo "- 通过环境变量 DASHSCOPE_API_KEY 或 API_KEY 提供密钥（勿写入脚本）"
 echo "- 确保 API 密钥有效"
 echo "- 确保网络连接正常"
 echo "- 生成的图片已自动保存到 $TEST_DIR 目录"

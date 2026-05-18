@@ -1,4 +1,5 @@
 import asyncio
+import os
 import time
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
@@ -8,10 +9,10 @@ from image_service import ImageService
 # Create MCP server instance
 mcp = Server("Image Generation MCP")
 
-# Initialize ImageService
+# Initialize ImageService（阿里云 DashScope，密钥见环境变量 DASHSCOPE_API_KEY）
 service = ImageService(
-    api_url="https://api.siliconflow.cn/v1/images/generations",  # Silicon Flow API URL
-    api_key="your_api_key_here"  # Replace with actual API key
+    api_url=None,
+    api_key=os.getenv("DASHSCOPE_API_KEY"),
 )
 
 # Define tools
@@ -27,7 +28,7 @@ async def help() -> dict:
 @Tool.from_function
 async def generate_image(prompt: str, negative_prompt: str = "", num_inference_steps: int = 20,
                         guidance_scale: float = 7.5, seed: int = None, image_size: str = "1024x1024") -> dict:
-    """Generate image from text prompt using Silicon Flow's API"""
+    """Generate image from text prompt using Alibaba Cloud DashScope"""
     return service.generate_image(prompt, negative_prompt, num_inference_steps, guidance_scale, seed, image_size)
 
 @Tool.from_function
@@ -43,7 +44,7 @@ async def image_resource(image_path: str) -> str:
 @Tool.from_function
 async def pixel_image_generate(user_input: str, negative_prompt: str = "", num_inference_steps: int = 20,
                              guidance_scale: float = 7.5, seed: int = None, image_size: str = "1024x1024") -> dict:
-    """Generate pixel emoji style image from user input using LLM prompt generation"""
+    """Generate pixel LED-matrix style image using the built-in template (no extra LLM)"""
     return service.pixel_image_generate(user_input, negative_prompt, num_inference_steps, guidance_scale, seed, image_size)
 
 async def main():

@@ -1,12 +1,14 @@
 import json
+import os
 import sys
+
 from image_service import ImageService
+
 
 def main():
     service = ImageService(
-        api_url="https://api.siliconflow.cn/v1/images/generations",  # Silicon Flow API URL
-    
-        api_key="sk-sizdciquzgledafoqeguebohudunufoztppywmclondftwij"  # Replace with actual API key
+        api_url=None,
+        api_key=os.getenv("DASHSCOPE_API_KEY"),
     )
     
     try:
